@@ -162,21 +162,25 @@ export const App: React.FC = () => {
 
   function toggleAllTodos() {
     const isCompletedAllTodos = todos.some(item => item.completed === false);
+
     if (isCompletedAllTodos) {
       todos.map(todoItem => {
         updateChecked(todoItem, 'all');
       });
+
       return;
     }
+
     todos.map(todoItem => {
       updateChecked(todoItem, 'once');
     });
   }
 
-  function clearCompleted(completedTodos: Todo[]) {
-    completedTodos.forEach(itemTodo => {
+  function clearCompleted(todosCompleted: Todo[]) {
+    todosCompleted.forEach(itemTodo => {
       removeTodo(itemTodo.id);
     });
+
     return;
   }
 
@@ -259,7 +263,10 @@ export const App: React.FC = () => {
                       'is-active': waiterLoading === todoItem.id,
                     })}
                   >
-                    <div className="modal-background has-background-white-ter" />
+                    <div
+                      className="modal-background
+                    has-background-white-ter"
+                    />
                     <div className="loader" />
                   </div>
                 </div>
