@@ -13,7 +13,6 @@ import { Todo } from './types/Todo';
 import classNames from 'classnames';
 
 type FilterName = 'All' | 'Active' | 'Completed';
-type OptionUpdate = 'all' | 'once';
 
 export const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -75,7 +74,6 @@ export const App: React.FC = () => {
 
   const filteredTodos = onFilteredTodos(activeFilter);
   const activeTodos = onFilteredTodos('Active');
-  const completedTodos = onFilteredTodos('Completed');
 
   const handleCloseErrorButton = () => {
     setErrorMsg('');
@@ -132,15 +130,8 @@ export const App: React.FC = () => {
     setTodo(event.target.value);
   };
 
-  function updateChecked(updatedTodo: Todo, option: OptionUpdate = 'once') {
-    let updateCompleted = !updatedTodo.completed;
-
-    if (option === 'all') {
-      updateCompleted = true;
-    }
-
-    setWaiterLoading(updatedTodo.id);
-    updateTodo({ ...updatedTodo, completed: updateCompleted })
+  function updateChecked(updatedTodo: Todo) {
+    updateTodo({ ...updatedTodo, completed: !updatedTodo.completed })
       .then(todoItem => {
         setTodos(currentTodos => {
           const newPosts = [...currentTodos];
@@ -153,33 +144,8 @@ export const App: React.FC = () => {
           return newPosts;
         });
       })
-      .catch(() => showError('Unable to update a todo'))
-      .finally(() => {
-        setWaiterLoading(null);
-      });
+      .catch(() => showError('Unable to update a todo'));
   }
-
-  function toggleAllTodos() {
-    const isCompletedAllTodos = todos.some(item => item.completed === false);
-    if (isCompletedAllTodos) {
-      todos.map(todoItem => {
-        updateChecked(todoItem, 'all');
-      });
-      return;
-    }
-    todos.map(todoItem => {
-      updateChecked(todoItem, 'once');
-    });
-  }
-
-  function clearCompleted(completedTodos: Todo[]) {
-    completedTodos.forEach(itemTodo => {
-      removeTodo(itemTodo.id);
-    });
-    return;
-  }
-
-  console.log(waiterLoading);
 
   return (
     <>
@@ -197,7 +163,6 @@ export const App: React.FC = () => {
                   type="button"
                   className="todoapp__toggle-all active"
                   data-cy="ToggleAllButton"
-                  onClick={() => toggleAllTodos()}
                 />
               )}
 
@@ -373,13 +338,10 @@ export const App: React.FC = () => {
                 </nav>
 
                 {/* this button should be disabled if there are no completed todos */}
-
                 <button
                   type="button"
                   className="todoapp__clear-completed"
                   data-cy="ClearCompletedButton"
-                  onClick={() => clearCompleted(completedTodos)}
-                  disabled={completedTodos.length < 1}
                 >
                   Clear completed
                 </button>
