@@ -30,7 +30,8 @@ export const App: React.FC = () => {
 
   const showError = (text: string) => {
     setErrorMsg(text);
-    window.setTimeout(() => {
+    const timerId = window.setTimeout(() => {
+      window.clearTimeout(timerId);
       setErrorMsg('');
     }, 3000);
   };
@@ -49,7 +50,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [todos]);
+  }, [todos, errorMsg]);
 
   function onFilteredTodos(filterName: FilterName): Todo[] {
     switch (filterName) {
@@ -93,7 +94,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    const newTempTodo = createNewTodo(todo);
+    const newTempTodo = createNewTodo(todo.trim());
 
     setTempTodo(newTempTodo);
     setLoading(true);
@@ -178,8 +179,6 @@ export const App: React.FC = () => {
     });
     return;
   }
-
-  console.log(waiterLoading);
 
   return (
     <>
