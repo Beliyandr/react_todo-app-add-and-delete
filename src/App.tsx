@@ -12,7 +12,11 @@ import {
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 
-type FilterName = 'All' | 'Active' | 'Completed';
+enum FilterName {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
 type OptionUpdate = 'all' | 'once';
 
 export const App: React.FC = () => {
@@ -26,7 +30,7 @@ export const App: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState<FilterName>('All');
+  const [activeFilter, setActiveFilter] = useState<FilterName>(FilterName.All);
 
   const showError = (text: string) => {
     setErrorMsg(text);
@@ -52,39 +56,35 @@ export const App: React.FC = () => {
     inputRef.current?.focus();
   }, [todos, errorMsg]);
 
-  function onFilteredTodos(filterName: FilterName): Todo[] {
+  const onFilteredTodos = (filterName: FilterName): Todo[] => {
     switch (filterName) {
-      case 'All':
+      case FilterName.All:
         return todos;
-      case 'Active':
+      case FilterName.Active:
         return todos.filter(todoItem => !todoItem.completed);
-      case 'Completed':
+      case FilterName.Completed:
         return todos.filter(todoItem => !!todoItem.completed);
       default:
         return todos;
     }
-  }
+  };
 
-  function createNewTodo(title: string) {
+  const createNewTodo = (title: string): Todo => {
     return {
       completed: false,
       id: 0,
       title: title,
       userId: USER_ID,
     };
-  }
+  };
 
   const filteredTodos = onFilteredTodos(activeFilter);
-  const activeTodos = onFilteredTodos('Active');
-  const completedTodos = onFilteredTodos('Completed');
+  const activeTodos = onFilteredTodos(FilterName.Active);
+  const completedTodos = onFilteredTodos(FilterName.Completed);
 
   const handleCloseErrorButton = () => {
     setErrorMsg('');
   };
-
-  function reset() {
-    setTodo('');
-  }
 
   const createTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,7 +133,10 @@ export const App: React.FC = () => {
     setTodo(event.target.value);
   };
 
-  function updateChecked(updatedTodo: Todo, option: OptionUpdate = 'once') {
+  const updateChecked = (
+    updatedTodo: Todo,
+    option: OptionUpdate = 'once',
+  ): void => {
     let updateCompleted = !updatedTodo.completed;
 
     if (option === 'all') {
@@ -158,9 +161,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setWaiterLoading(null);
       });
-  }
+  };
 
-  function toggleAllTodos() {
+  const toggleAllTodos = (): void => {
     const isCompletedAllTodos = todos.some(item => item.completed === false);
 
     if (isCompletedAllTodos) {
@@ -174,15 +177,13 @@ export const App: React.FC = () => {
     todos.map(todoItem => {
       updateChecked(todoItem, 'once');
     });
-  }
+  };
 
-  function clearCompleted(todosCompleted: Todo[]) {
+  const clearCompleted = (todosCompleted: Todo[]): void => {
     todosCompleted.forEach(itemTodo => {
       removeTodo(itemTodo.id);
     });
-
-    return;
-  }
+  };
 
   return (
     <>
@@ -200,12 +201,12 @@ export const App: React.FC = () => {
                   type="button"
                   className="todoapp__toggle-all active"
                   data-cy="ToggleAllButton"
-                  onClick={() => toggleAllTodos()}
+                  onClick={toggleAllTodos}
                 />
               )}
 
               {/* Add a todo on form submit */}
-              <form onSubmit={createTodo} onReset={reset}>
+              <form onSubmit={createTodo} onReset={() => setTodo('')}>
                 <input
                   ref={inputRef}
                   data-cy="NewTodoField"
@@ -347,10 +348,10 @@ export const App: React.FC = () => {
                   <a
                     href="#/"
                     className={classNames('filter__link', {
-                      selected: activeFilter === 'All',
+                      selected: activeFilter === FilterName.All,
                     })}
                     data-cy="FilterLinkAll"
-                    onClick={() => setActiveFilter('All')}
+                    onClick={() => setActiveFilter(FilterName.All)}
                   >
                     All
                   </a>
@@ -358,10 +359,10 @@ export const App: React.FC = () => {
                   <a
                     href="#/active"
                     className={classNames('filter__link', {
-                      selected: activeFilter === 'Active',
+                      selected: activeFilter === FilterName.Active,
                     })}
                     data-cy="FilterLinkActive"
-                    onClick={() => setActiveFilter('Active')}
+                    onClick={() => setActiveFilter(FilterName.Active)}
                   >
                     Active
                   </a>
@@ -369,10 +370,10 @@ export const App: React.FC = () => {
                   <a
                     href="#/completed"
                     className={classNames('filter__link', {
-                      selected: activeFilter === 'Completed',
+                      selected: activeFilter === FilterName.Completed,
                     })}
                     data-cy="FilterLinkCompleted"
-                    onClick={() => setActiveFilter('Completed')}
+                    onClick={() => setActiveFilter(FilterName.Completed)}
                   >
                     Completed
                   </a>
